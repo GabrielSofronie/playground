@@ -22,3 +22,13 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+# Ignore
+.*
+wss*
+*.iml
+pkg
+*/public/scripts/*
+*/public/themes/*
+*/resources/*
+*/src/go*
