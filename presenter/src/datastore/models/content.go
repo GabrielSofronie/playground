@@ -28,8 +28,9 @@ import (
 )
 
 type Content struct {
+	//Id string
 	Title string
-	//Author User
+	Author User
 	Created time.Time
 	Updated time.Time
 }

@@ -22,12 +22,11 @@ V_2:
 
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type User struct{
-	Name string
+	//Id bson.ObjectId `bson:"_id,omitempty" json:"-"`
+	Name string //`json:"name"`
 	Age byte
 	Registered time.Time
 	Updated time.Time

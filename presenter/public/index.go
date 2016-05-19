@@ -17,7 +17,7 @@ func main() {
 	session.SetMode(mgo.Monotonic, true)
 
 	appCtx := datastore.MongoContext{session.DB("dummy")}
-	repo := entity.PageRepo{appCtx.Data.C("content")}
+	repo := entity.PageRepo{appCtx.C("content")}
 
 	// First Insert something
 	content := `{ "Title": "Delete" }`

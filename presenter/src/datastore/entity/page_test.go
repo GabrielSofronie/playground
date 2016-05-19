@@ -3,8 +3,9 @@ package entity
 import (
 	db "datastore"
 	"datastore/models"
-	"testing"
+//	"testing"
 	"time"
+	"testing"
 )
 
 /*
@@ -68,7 +69,7 @@ func (mds *mockDataStore)Find(interface{}) (interface{}, error) {
 		Updated: time.Now(),
 	}, nil
 }
-
+/*
 func TestFind(t *testing.T) {
 	mds := mockDataStore{}
 	p, err := mds.Find("name")
@@ -78,8 +79,9 @@ func TestFind(t *testing.T) {
 
 	t.Log(p)
 }
+*/
 
 // Enforce Interface implement over struct
 func TestInterfaceImplement(t *testing.T) {
-	var _ db.Datastore = (*PageRepo)(nil)
+	var _ db.Repository = (*PageRepo)(nil)
 }
