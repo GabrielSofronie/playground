@@ -1,25 +1,38 @@
-package entity
+package repository
 
 import (
-	"datastore/models"
+	"datastore/entities"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"errors"
 )
 
-type PageRepo struct {
+/*
+*** This is an EntityGatewayImplementer ***
+It uses a Database API (mgo - in this case) and provides the query-methods to work with the DB
+e.g. RetrieveBy(...)
+These ones can be stubbed to simulate a response from DB, making their use (and unit-testing) easier
+*/
+
+/*
+Define a MongoPage which implements Repository interface;
+Can add another implementation for a FilesystemPage which satisfies the same interface.
+Or even a MockUser etc.
+*/
+
+type MongoPage struct {
 	Collection *mgo.Collection
 }
 
-func (p *PageRepo) Create(content interface{}) error {
+func (p *MongoPage) Create(content interface{}) error {
 	if err:= p.Collection.Insert(content); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *PageRepo) Retrieve(id interface{}) (interface{}, error) {
-	page := models.Content{}
+func (p *MongoPage) Retrieve(id interface{}) (interface{}, error) {
+	page := entities.Content{}
 	// Use type assertion to transform id -> string
 	if str, err := id.(string); err {
 		err := p.Collection.FindId(bson.ObjectIdHex(str)).One(&page)
@@ -33,15 +46,15 @@ func (p *PageRepo) Retrieve(id interface{}) (interface{}, error) {
 	return page, nil
 }
 
-func (p *PageRepo) RetrieveBy(field interface{}) (interface{}, error) {
-	content := models.Content{}
+func (p *MongoPage) RetrieveBy(field interface{}) (interface{}, error) {
+	content := entities.Content{}
 	if err := p.Collection.Find(field).One(&content); err != nil {
 		return nil, err
 	}
 	return content, nil
 }
 
-func (p *PageRepo) Delete(content interface{}) error {
+func (p *MongoPage) Delete(content interface{}) error {
 	if err := p.Collection.Remove(content); err != nil {
 		return err
 	}

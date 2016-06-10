@@ -1,8 +1,8 @@
-package entity
+package repository
 
 import (
 	db "datastore"
-	"datastore/models"
+	"datastore/entities"
 //	"testing"
 	"time"
 	"testing"
@@ -55,7 +55,7 @@ func TestGetPage(t *testing.T) {
 type mockDataStore struct {}
 
 func (mds *mockDataStore)Find(interface{}) (interface{}, error) {
-	return models.Content{
+	return entities.Content{
 		Title: "Mock page title",
 		/*
 		Author: models.User{
@@ -83,5 +83,5 @@ func TestFind(t *testing.T) {
 
 // Enforce Interface implement over struct
 func TestInterfaceImplement(t *testing.T) {
-	var _ db.Repository = (*PageRepo)(nil)
+	var _ db.Repository = (*FilesystemPage)(nil)
 }

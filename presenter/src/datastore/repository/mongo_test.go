@@ -1,12 +1,18 @@
-package entity
+package repository
 
+import "gopkg.in/mgo.v2"
+
+/*
 import (
 	"testing"
 	"gopkg.in/mgo.v2"
 	"datastore"
-	"datastore/models"
+	"datastore/entities"
 	"time"
+	"datastore"
+	"datastore/entities"
 )
+*/
 
 type dummyContent struct {
 	content string
@@ -24,27 +30,30 @@ func (dc *dummyContent) Read(data []byte) (int, error) {
 	return len(dc.content), nil
 }
 
-func TestMongoDial(t *testing.T) {
+func getMongoSession() (*mgo.Session, error) {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
-		t.Fatalf("Dial error: %v", err)
-	}
-	defer session.Close()
-}
-
-func TestMongoPageCrud(t *testing.T) {
-	session, err := mgo.Dial("localhost")
-	if err != nil {
-		t.Fatalf("Dial error: %v", err)
+		return nil, err
 	}
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
+
+	return session, nil
+}
+
+/*
+func TestMongoPageCrud(t *testing.T) {
+	_, err := getMongoSession()
+
+	if err != nil {
+		t.Errorf("Cannot get Mongo Session: %v", err)
+	}
 
 	appCtx := datastore.MongoContext{session.DB("dummy")}
 	repo := PageRepo{appCtx.C("content")}
 
 	// First Insert something
-	content := models.Content{
+	content := entities.Content{
 		Title: "Awesome",
 	}
 	if err := repo.Create(content); err != nil {
@@ -52,7 +61,7 @@ func TestMongoPageCrud(t *testing.T) {
 	}
 
 	// Then try to Find it
-	content = models.Content{
+	content = entities.Content{
 		Title: "Awesome",
 	}
 	page, err := repo.RetrieveBy(content)
@@ -63,7 +72,7 @@ func TestMongoPageCrud(t *testing.T) {
 	t.Logf("[%v] Model: %v \n%v", time.Now(), content, page)
 
 	// Delete [One]
-	content = models.Content{
+	content = entities.Content{
 		Title: "Awesome",
 	}
 	err = repo.Delete(content)
@@ -73,6 +82,7 @@ func TestMongoPageCrud(t *testing.T) {
 	}
 }
 
+/*
 func TestMongoUserCrud(t *testing.T) {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
@@ -85,7 +95,7 @@ func TestMongoUserCrud(t *testing.T) {
 	repo := UserRepo{appCtx.C("users")}
 
 	// First Insert something
-	user := models.User{
+	user := entities.User{
 		Name: "14th One",
 		//Registered: time.Now(),
 	}
@@ -96,7 +106,7 @@ func TestMongoUserCrud(t *testing.T) {
 	}
 
 	// Then try to Find it
-	user = models.User{
+	user = entities.User{
 		Name: "14th One",
 	}
 	u, err := repo.RetrieveBy(user)
@@ -107,7 +117,7 @@ func TestMongoUserCrud(t *testing.T) {
 	t.Logf("[%v] Model: %v \n%v", time.Now(), user, u)
 
 	// Delete [One]
-	user = models.User{
+	user = entities.User{
 		Name: "14th One",
 	}
 	err = repo.Delete(user)
@@ -115,3 +125,4 @@ func TestMongoUserCrud(t *testing.T) {
 		t.Errorf("Error Deleting user: %v", err)
 	}
 }
+*/

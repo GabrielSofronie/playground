@@ -20,7 +20,11 @@ V_2:
 
 */
 
-package models
+/*
+*** This should be Entities accessed by Interactors and used by EntityGatewayImplementers ***
+*/
+
+package entities
 
 import "time"
 
