@@ -10,6 +10,7 @@ import (
 //	"log"
 //	"fmt"
 	"text/template"
+	//"datastore"
 )
 
 const (
@@ -50,7 +51,18 @@ func AdaptDB(db *mgo.Session) Adapter {
 
 // !!!This is an experimental Filesystem Handler
 func GetFSHandler() http.Handler {
-	fs := repository.FilesystemPage{"/tmp/page.json"}
+	//fs := repository.FilesystemPage{"/tmp/page.json"}
+	conf := map[string]string{
+		"repository" : "filesystem",
+		"path" : "/tmp/",
+		"filename" : "page.json",
+	}
+
+	fs, err := repository.GetRepository(conf)
+
+	if err != nil {
+		panic(err)
+	}
 
 	return HandleAdapt(http.HandlerFunc(handleFile), adaptDatastore(fs))
 }
@@ -95,7 +107,7 @@ func adaptDatastore(ds interface{}) HandlerAdapter {
 
 // ACTION HANDLERS
 func createFile(w http.ResponseWriter, r *http.Request) {
-	fs := context.Get(r, ctxDatastore).(repository.FilesystemPage)
+	fs := context.Get(r, ctxDatastore).(*repository.FilesystemPage)
 
 	content := entities.Content{
 		Title: "Architect",
@@ -107,9 +119,9 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func viewFile(w http.ResponseWriter, r *http.Request) {
-	fs := context.Get(r, ctxDatastore).(repository.FilesystemPage)
+	fs := context.Get(r, ctxDatastore).(*repository.FilesystemPage)
 
-	page, err := fs.Retrieve("")
+	page, err := fs.RetrieveSingle("/tmp/page.json")
 
 	if err != nil {
 		panic(err)

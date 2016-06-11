@@ -1,8 +1,8 @@
 package repository
 
 import (
-	//"datastore/entities"
 	"testing"
+	"datastore"
 	"datastore/entities"
 )
 
@@ -18,8 +18,13 @@ func getMockContent() entities.Content {
 	}
 }
 
+// Enforce Interface implement over struct
+func TestInterfaceImplement(t *testing.T) {
+	var _ datastore.Repository = (*FilesystemPage)(nil)
+}
+
 func TestCreate(t *testing.T) {
-	page, err := InitFilesystem(path + filename)
+	page, err := InitFilesystem(path, filename)
 	defer page.File.Close()
 
 	if err != nil {
@@ -32,7 +37,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestRetrieveSingle(t *testing.T) {
-	page, err := InitFilesystem(path + filename)
+	page, err := InitFilesystem(path, filename)
 	defer page.File.Close()
 
 	if err != nil {
@@ -53,7 +58,7 @@ func TestRetrieveSingle(t *testing.T) {
 }
 
 func TestRetrieveAll(t *testing.T) {
-	page, err := InitFilesystem(path + filename)
+	page, err := InitFilesystem(path, filename)
 	defer page.File.Close()
 
 	if err != nil {
@@ -74,7 +79,7 @@ func TestRetrieveAll(t *testing.T) {
 }
 
 func TestDeleteSingle(t *testing.T) {
-	page, err := InitFilesystem(path + filename)
+	page, err := InitFilesystem(path, filename)
 	defer page.File.Close()
 
 	if err != nil {

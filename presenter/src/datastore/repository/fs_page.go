@@ -1,15 +1,79 @@
 package repository
 
 import (
-	_ "datastore"
-//	"datastore/entities"
 	"encoding/json"
 	"errors"
-//	"io/ioutil"
 	"os"
 	"io/ioutil"
 	"datastore/entities"
+	"fmt"
+	"datastore"
 )
+
+
+func FilesystemPageRepository(conf map[string]string) (datastore.Repository, error) {
+	path := conf["path"]
+	filename := conf["filename"]
+
+	if path == "" || filename == "" {
+		return nil, errors.New(fmt.Sprintf("Missing configuration data:\npath: %v\nfilename: %v", path, filename))
+	}
+
+	return InitFilesystem(path, filename)
+}
+
+func MongoPageRepository(conf map[string]string) (datastore.Repository, error) {
+	return nil, nil
+}
+
+//----------------------------------------------------
+//-----   Maybe this mapping can be avoided and  -----
+//-----         a simpler Get can be used        -----
+//----------------------------------------------------
+var repoFactories = make(map[string]datastore.RepositoryFactory)
+
+func Register(name string, factory datastore.RepositoryFactory) error {
+	if factory == nil {
+		return errors.New("No valid factory provided")
+	}
+
+	repoFactories[name] = factory
+
+	return nil
+}
+
+func initialize() {
+	Register("filesystem", FilesystemPageRepository)
+}
+//----------------------------------------------------
+
+func GetRepository(conf map[string]string) (datastore.Repository, error) {
+	initialize()
+
+	repositoryName := conf["repository"]
+
+	if repositoryName == "" {
+		return nil, errors.New("Repository not found! Empty values are not allowed")
+	}
+
+	repositoryFactory, ok := repoFactories[repositoryName]
+
+	if !ok {
+		return nil, errors.New("Can't create Repository")
+	}
+
+	return repositoryFactory(conf)
+
+	/*
+	switch t {
+	case "Mongo":
+		return new(repository.MongoPage), nil
+	default:
+		return new(repository.FilesystemPage), nil
+	}
+	*/
+}
+
 
 // This implementation creates some sample files inside /tmp
 // for the sole purpose to be used as a DB replacement.
@@ -17,20 +81,15 @@ import (
 // are considered; a better implementation should
 // consider adding proper validation, directory creation etc.
 
-type Repository interface {
-	Create(interface{}) error
-	RetrieveSingle(interface{}) (interface{}, error)
-	RetrieveAll(interface{}) (interface{}, error)
-	DeleteSingle(interface{}) error
-//	Drop() error
-}
-
 type FilesystemPage struct {
 	*os.File
 }
 
-func InitFilesystem(filename string) (*FilesystemPage, error) {
-	f, err := os.Create(filename)
+func InitFilesystem(path string, filename string) (*FilesystemPage, error) {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return nil, err
+	}
+	f, err := os.Create(path + filename)
 	if err != nil {
 		return nil, err
 	}
