@@ -6,6 +6,8 @@ import (
 	"github.com/gorilla/context"
 	"datastore/repository"
 	"datastore/entities"
+	"encoding/json"
+	"path"
 
 //	"log"
 //	"fmt"
@@ -15,8 +17,12 @@ import (
 
 const (
 	ctxDatastore = "datastore"
+	tplFile = "../resources/views/master"
 	tplExt = ".got"
+	fsPath = "/tmp/"
 )
+
+var filename string
 
 type HandlerAdapter func(http.Handler) http.Handler
 
@@ -50,12 +56,14 @@ func AdaptDB(db *mgo.Session) Adapter {
 */
 
 // !!!This is an experimental Filesystem Handler
-func GetFSHandler() http.Handler {
+func GetFSHandler(urlPath string) http.Handler {
 	//fs := repository.FilesystemPage{"/tmp/page.json"}
+	filename = path.Base(urlPath)
+
 	conf := map[string]string{
 		"repository" : "filesystem",
-		"path" : "/tmp/",
-		"filename" : "page.json",
+		"path" : fsPath,
+		"filename" : filename,
 	}
 
 	fs, err := repository.GetRepository(conf)
@@ -71,28 +79,12 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		createFile(w, r)
 		viewFile(w, r)
 	case "POST":
 		createFile(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
-
-	/*
-	fs := context.Get(r, "filesystem").(repository.FilesystemPage)
-
-	// Dummy insert
-	content := entities.Content{
-		Title: "Architect",
-	}
-	// Test by creating a new file
-	log.Printf("Create on the FS: %v", fs.Create(content))
-
-	// Try to retrieve and display the content
-	page, _ := fs.Retrieve("")
-	fmt.Fprintf(w, "Tadaaaa: %v", page)
-	*/
 }
 
 // Can use Filesystem instead of DB-store
@@ -109,8 +101,10 @@ func adaptDatastore(ds interface{}) HandlerAdapter {
 func createFile(w http.ResponseWriter, r *http.Request) {
 	fs := context.Get(r, ctxDatastore).(*repository.FilesystemPage)
 
-	content := entities.Content{
-		Title: "Architect",
+	var content entities.Content
+
+	if err := json.NewDecoder(r.Body).Decode(&content); err != nil {
+		panic(err)
 	}
 
 	if err := fs.Create(content); err != nil {
@@ -121,13 +115,12 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 func viewFile(w http.ResponseWriter, r *http.Request) {
 	fs := context.Get(r, ctxDatastore).(*repository.FilesystemPage)
 
-	page, err := fs.RetrieveSingle("/tmp/page.json")
+	page, err := fs.RetrieveSingle(fsPath + filename)
 
 	if err != nil {
 		panic(err)
 	}
 
-	tplFile := "../resources/views/master"
 	renderContent(w, tplFile, page)
 }
 

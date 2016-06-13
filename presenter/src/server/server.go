@@ -18,11 +18,13 @@ import (
 // Start a basic server
 func Start() {
 	//databaseHandler := GetDBHandler()
-	fileHandler := GetFSHandler()
+
+	urlPath := "/content/fs/file-one"
+	fileHandler := GetFSHandler(urlPath)
 
 	// sample path
 	// SHOULD USE Gorilla Mux and RegEx Paths
-	http.Handle("/content/fs/1", context.ClearHandler(fileHandler))
+	http.Handle(urlPath, context.ClearHandler(fileHandler))
 
 	// start a web server
 	if err := http.ListenAndServe(":8080", nil); err != nil {

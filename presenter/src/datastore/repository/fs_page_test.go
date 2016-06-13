@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	path = "/tmp/content/"
+	path = "/tmp/content/test/"
 	filename = "page.json"
 )
 
